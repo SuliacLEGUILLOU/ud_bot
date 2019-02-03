@@ -23,7 +23,7 @@ class DiscordEngine{
 		this.discord.on('debug', (e) => console.info(e))
 		this.discord.on('message', (msg) => {
 			if(msg.author.bot) return
-			if(msg.content.substring(0, 1) !== '!'|| msg.content.substring(0, 1) !== '.') return
+			if(msg.content.substring(0, 1) !== '!' || msg.content.substring(0, 1) !== '.') return
 			if(msg.content.substring(1, 2) === '_' || msg.content.substring(1, 8) === 'private') return
 			if(!this._preCommandCheck()) return
 

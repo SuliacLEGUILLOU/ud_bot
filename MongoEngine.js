@@ -8,7 +8,7 @@ class MongoEngine {
 		this.dbName = options.dbName || 'races'
 		this.db = options.db || null
 
-		MongoClient.connect('mongodb://localhost', function(err, client) {
+		MongoClient.connect('mongodb://localhost', function(err, client){
 			if(err){
 				console.log('Could not connect to database')
 				process.exit(1)
@@ -19,7 +19,7 @@ class MongoEngine {
 	}
 
 	getCollection(collectionName){
-		if(!this.db) return null // Todo: Make sure the client is initialised
+		if(!this.db) return null
 
 		return this.db.collection(collectionName)
 	}

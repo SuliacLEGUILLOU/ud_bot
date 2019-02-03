@@ -1,7 +1,9 @@
 const MongoEngine = require('./MongoEngine')
 const DiscordEngine = require('./DiscordEngine')
 const RaceEngine = require('./RaceEngine')
+const utils = require('./utils')
 
+// TODO make result[0].racers and object to access it more easily
 class DiscordCommand extends DiscordEngine {
 	constructor(options) {
 		options = options || {}
@@ -28,7 +30,7 @@ class DiscordCommand extends DiscordEngine {
 
 			if(result[0].racers.length > 0){
 				var currentRacers = result[0].racers
-				if(this.raceEngine.isRacerInRace(msg.author.id, currentRacers)) return msg.channel.send(msg.author + ' is already in the race')
+				if(utils.isRacerInRace(msg.author.id, currentRacers)) return msg.channel.send(msg.author + ' is already in the race')
 				
 				currentRacers.push({id : msg.author.id, name : msg.author.username, status : 'join', time : 'notfinished'})
 				var setToAdd = {$set: {racers : currentRacers}}
@@ -48,7 +50,28 @@ class DiscordCommand extends DiscordEngine {
 	}
 
 	ready(){}
-	unready(){}
+	unready(msg){
+		this.mongoEngine.getCollection('liveraces').find({channelid : msg.channel.id}, { projection: {channelid: 1, racers: 1, status: 1}}).toArray(function(err, result) {
+			if(result[0].racers.length === 0 || result[0].status !== 'new') return
+			var racerIsReady, racerDBid
+
+			for (var i in result[0].racers) {
+				if(result[0].racers[i].id === msg.author.id){
+					racerIsReady = true
+					racerDBid=i
+				}
+			}
+			if (!racerIsReady) return msg.reply('You\'re not in the race, enter with !join')
+
+			var currentRacers = result[0].racers
+			currentRacers[racerDBid].status='join'
+			var racerReady = {$set: {racers : currentRacers}}
+			this.mongoEngine.getCollection('liveraces').updateOne({channelid : msg.channel.id}, racerReady,function(err) {
+				if (err) throw err
+				msg.channel.send(msg.author.username + ' isn\'t ready.')
+			})
+		})
+	}
 	done(){}
 	undone(){}
 	forfeit(){}
@@ -59,7 +82,7 @@ class DiscordCommand extends DiscordEngine {
 			
 			if(result[0].racers.length === 0) return msg.channel.send('Nobody joined the race yet.')
 			for(var i in result[0].racers) {
-				msg.channel.send(this.raceEngine.racerToString(result[0].racers[i]))
+				msg.channel.send(utils.racerToString(result[0].racers[i]))
 			}
 		})
 	}

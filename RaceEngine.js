@@ -1,4 +1,5 @@
 const MongoEngine = require('./MongoEngine')
+const utils = require('./utils')
 
 class RaceEngine {
 	constructor(options){
@@ -8,41 +9,30 @@ class RaceEngine {
 		this.mongoEngine = options.mongoEngine || new MongoEngine()
 	}
 
-	isRacerInRace(racerId, racerList){
-		for(var i in racerList){
-			if(racerList[i].id === racerId){
-				return true
-			}
-		}
-		return false
+	createRace(){}
+	deleteRace(){}
+	getRace(){}
+	updateRace(){}
+	archiveRace(){}
+
+	addRacer(race, racer, next){
+		if(utils.isRacerInRace(racer.id, race)) return next(racer.author + ' is already in the race')
+		
+		race.runner[racer.id] = racer
+		this.mongoEngine.getCollection('liveraces').updateOne({channelId : race.channelId}, {$set: {racers : race}}, next)
 	}
 
-	racerToString(racer){
-		console.log('racerToString function called')
-		var toReturn
-		toReturn = racer.name
-		if(racer.status == 'join'){
-			toReturn += ' (not ready)'
-		}
-		else if(racer.status == 'done'){
-			var time = new Date(racer.time)
-			toReturn += ' finished (' + this.prettyTime(time)+ ').'
-		}
-		else if(racer.status ==  'forfeit' || racer.status ==  'dq'){
-			toReturn += ' (quit)'
-		}
-		return toReturn
+	removerRacer(race, racer, next){
+		delete race.runner[racer.id]
+		this.mongoEngine.getCollection('liverace').updateOne({channelId : race.channelId}, {$set: {racers : race}}, next)
 	}
 
-	prettyTime(duration){
-		console.log('PrettyTime function called')
-		if(this.conf.displayMS=='false'){
-			return duration.toISOString().substring(duration.toISOString().indexOf('T') + 1).replace(/\..+/, '')
-		}
-		else{
-			return duration.toISOString().substring(duration.toISOString().indexOf('T') + 1).replace('Z', '')
-		}
+	setRacerState(race, racer, state, next){
+		race.runner[racer.id].ready = !!state
+		this.mongoEngine.getCollection('liverace').updateOne({channelId : race.channelId}, {$set: {racers : race}}, next)
 	}
+
+	updateRacer(){}
 }
 
 module.exports = RaceEngine
