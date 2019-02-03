@@ -1,0 +1,16 @@
+{
+  "name": "ud_bot",
+  "version": "1.0.0",
+  "description": "UD racebot",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "S18alg, Twyn",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.6.1",
+    "mongodb": "^3.1.13"
+  }
+}
