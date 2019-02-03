@@ -8,6 +8,15 @@ class RaceEngine {
 		this.mongoEngine = options.mongoEngine || new MongoEngine()
 	}
 
+	isRacerInRace(racerId, racerList) {
+		for (var i in racerList) {
+			if (racerList[i].id === racerId) {
+				return true
+			}
+		}
+		return false
+	}
+
 	racerToString(racer){
 		console.log('racerToString function called')
 		var toReturn
