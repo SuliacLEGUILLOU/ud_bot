@@ -11,6 +11,10 @@ class DiscordCommand extends DiscordEngine {
 		this.raceEngine = options.raceEngine || new RaceEngine(options)
 	}
 
+	_preCommandCheck(){
+		return super._preCommandCheck() && this.mongoEngine.isReady()
+	}
+
 	start(){}
 	help(msg){
 		msg.channel.send('start : starts a new race, join : join a race, ready/unready, done/undone, forfeit, quit, entrants : list of entrants, time : time since race started')

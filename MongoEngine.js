@@ -23,6 +23,10 @@ class MongoEngine {
 
 		return this.db.collection(collectionName)
 	}
+
+	isReady(){
+		return !!this.db
+	}
 }
 
 module.exports = MongoEngine

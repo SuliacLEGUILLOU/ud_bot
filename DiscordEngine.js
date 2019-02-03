@@ -12,14 +12,19 @@ class DiscordEngine {
 		this.discord.login(this.auth.token)
 	}
 
+	_preCommandCheck(){
+		return true
+	}
+
 	_initEvent(){
 		this.discord.on('ready', () => { console.log('Logged in as '+this.discord.user.tag) })
 		this.discord.on('error', (e) => console.error(e))
 		this.discord.on('warn', (e) => console.warn(e))
 		this.discord.on('debug', (e) => console.info(e))
 		this.discord.on('message', (msg) => {
-			if(msg.author.bot) return
+			if (msg.author.bot) return
 			if (msg.content.substring(0, 1) !== '!' || msg.content.substring(0, 1) !== '.' || msg.content.substring(1, 2) === '_') return
+			if (!this._preCommandCheck()) return
 
 			var args = msg.content.substring(1).split(' ')
 			
