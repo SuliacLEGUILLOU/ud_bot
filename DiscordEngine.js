@@ -1,7 +1,7 @@
 const Discord = require('discord.js')
 
-class DiscordEngine {
-	constructor(options) {
+class DiscordEngine{
+	constructor(options){
 		options = options || {}
 
 		this.conf = options.conf || []
@@ -22,17 +22,17 @@ class DiscordEngine {
 		this.discord.on('warn', (e) => console.warn(e))
 		this.discord.on('debug', (e) => console.info(e))
 		this.discord.on('message', (msg) => {
-			if (msg.author.bot) return
-			if (msg.content.substring(0, 1) !== '!' || msg.content.substring(0, 1) !== '.' || msg.content.substring(1, 2) === '_') return
-			if (!this._preCommandCheck()) return
+			if(msg.author.bot) return
+			if(msg.content.substring(0, 1) !== '!' || msg.content.substring(0, 1) !== '.' || msg.content.substring(1, 2) === '_') return
+			if(!this._preCommandCheck()) return
 
 			var args = msg.content.substring(1).split(' ')
 			
-			if (this[args[0]]) {
+			if(this[args[0]]){
 				this[args[0]](msg, args)
-			} else if (this['private_'+args[0]] && msg.member.roles.some(r=>[this.conf.adminRoleName].includes(r.name))) {
+			} else if (this['private_'+args[0]] && msg.member.roles.some(r=>[this.conf.adminRoleName].includes(r.name))){
 				this['private_'+args[0]](msg, args)
-			} else {
+			} else{
 				msg.channel.send(args[0] + ': Command not found')
 			}
 		})

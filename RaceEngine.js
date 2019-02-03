@@ -8,9 +8,9 @@ class RaceEngine {
 		this.mongoEngine = options.mongoEngine || new MongoEngine()
 	}
 
-	isRacerInRace(racerId, racerList) {
-		for (var i in racerList) {
-			if (racerList[i].id === racerId) {
+	isRacerInRace(racerId, racerList){
+		for(var i in racerList){
+			if(racerList[i].id === racerId){
 				return true
 			}
 		}
@@ -24,11 +24,11 @@ class RaceEngine {
 		if(racer.status == 'join'){
 			toReturn += ' (not ready)'
 		}
-		else if (racer.status == 'done'){
+		else if(racer.status == 'done'){
 			var time = new Date(racer.time)
 			toReturn += ' finished (' + this.prettyTime(time)+ ').'
 		}
-		else if (racer.status ==  'forfeit' || racer.status ==  'dq'){
+		else if(racer.status ==  'forfeit' || racer.status ==  'dq'){
 			toReturn += ' (quit)'
 		}
 		return toReturn
@@ -39,7 +39,7 @@ class RaceEngine {
 		if(this.conf.displayMS=='false'){
 			return duration.toISOString().substring(duration.toISOString().indexOf('T') + 1).replace(/\..+/, '')
 		}
-		else {
+		else{
 			return duration.toISOString().substring(duration.toISOString().indexOf('T') + 1).replace('Z', '')
 		}
 	}
