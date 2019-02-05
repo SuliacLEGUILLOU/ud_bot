@@ -1,5 +1,5 @@
 const MongoEngine = require('./MongoEngine')
-const utils = require('./utils')
+const moment = require('moment')
 
 class RaceEngine {
 	constructor(options){
@@ -7,32 +7,80 @@ class RaceEngine {
 
 		this.conf = options.conf || {}
 		this.mongoEngine = options.mongoEngine || new MongoEngine()
+		this.race = {}
 	}
 
-	createRace(){}
-	deleteRace(){}
-	getRace(){}
-	updateRace(){}
-	archiveRace(){}
+	createRace(race, next){
+		if(this.race[race.id]) return next(409)
 
-	addRacer(race, racer, next){
-		if(utils.isRacerInRace(racer.id, race)) return next(racer.author + ' is already in the race')
-		
-		race.runner[racer.id] = racer
-		this.mongoEngine.getCollection('liveraces').updateOne({channelId : race.channelId}, {$set: {racers : race}}, next)
+		race.runner = {}
+		this.race[race.id] = race
+		next(null, race)
 	}
 
-	removerRacer(race, racer, next){
-		delete race.runner[racer.id]
-		this.mongoEngine.getCollection('liverace').updateOne({channelId : race.channelId}, {$set: {racers : race}}, next)
+	deleteRace(race, next){
+		if(this.race[race.id]) return next(404)
+
+		delete this.race[race.id]
+		next(null, race)
 	}
 
-	setRacerState(race, racer, state, next){
-		race.runner[racer.id].ready = !!state
-		this.mongoEngine.getCollection('liverace').updateOne({channelId : race.channelId}, {$set: {racers : race}}, next)
+	getRace(raceId, next){
+		if(!this.race[raceId]) return next(404)
+
+		next(null, this.race[raceId])
 	}
 
-	updateRacer(){}
+	updateRace(race, next){
+		if(!this.race[race.id]) return next(404)
+
+		this.race[race.id] = race
+		next(null, race)
+	}
+
+	startRace(raceId, next){
+		if(!this.race[raceId]) return next(404)
+
+		this.race[raceId].startTime = moment(new Date()).add(10, 's').toISOString()
+		next(null, this.race[raceId])
+	}
+
+	archiveRace(raceId, next){
+		// TODO save this.race[raceId] in database
+		next()
+	}
+
+	addRacer(racer, raceId, next){
+		if(!this.race[raceId]) return next(404)
+		if(this.race[raceId].runner[racer.id]) return next(409)
+
+		this.race[raceId].runner[racer.id] = racer
+		next(null, this.race[raceId], racer)
+	}
+
+	removerRacer(racer, raceId, next){
+		if(!this.race[raceId] || !this.race[raceId].runner[racer.id]) return next(404)
+
+		delete this.race[raceId].runner[racer.id]
+		next(null, this.race[raceId], racer)
+	}
+
+	updateRacer(racer, raceId, next){
+		if(!this.race[raceId] || !this.race[raceId].runner[racer.id]) return next(404)		
+
+		this.race[raceId].runner[racer.id] = racer
+		next(null, this.race[raceId], racer)
+	}
+
+	racerDone(racer, raceId, next){
+		if(this.race[raceId] || this.race[raceId].runner[racer.id]) return next(404)
+
+		this.race[raceId].runner[racer.id].time = moment(new Date()).toISOString()
+		next(null, this.race[raceId].runner[racer.id])
+	}
+
+	messageToRace(msg){}
+	messageToRacer(msg){}
 }
 
 module.exports = RaceEngine
