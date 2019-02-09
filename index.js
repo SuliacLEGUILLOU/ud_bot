@@ -1,5 +1,5 @@
-const DiscordCommand = require('./DiscordCommand')
-const MongoEngine = require('./MongoEngine')
+const DiscordCommand = require('./controller/DiscordSpeedrunCommand')
+const MongoEngine = require('./lib/MongoEngine')
 const auth = require('./auth.json')
 const conf = require('./conf.json')
 
