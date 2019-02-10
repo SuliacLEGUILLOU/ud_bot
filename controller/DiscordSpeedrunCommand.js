@@ -91,7 +91,7 @@ class DiscordSpeedrunCommand extends DiscordEngine {
 	unready(msg){
 		var race = this.raceEngine.getRace(msg.channel.id)
 		if(!race) return msg.channel.send(msg.author.username+': Race not found')
-		if(race.startTime) return msg.channel.send(msg.author.username+': Race already started, do you want to forfeit')
+		if(moment().isAfter(race.startTime)) return msg.channel.send(msg.author.username+': Race already started, do you want to forfeit')
 		if(!race.runner[msg.author.tag]) return msg.channel.send(msg.author.username+': You are not in the race')
 		if(!race.runner[msg.author.tag].ready) return msg.channel.send(msg.author.username+': You are already not ready')
 		
@@ -113,7 +113,7 @@ class DiscordSpeedrunCommand extends DiscordEngine {
 		this.raceEngine.racerDone(msg.author.tag, msg.channel.id, (err, race, racer) => {
 			if(err) return msg.channel.send(racer.id+': error while setting self as ready')
 
-			msg.channel.send(racer.id+' is done for '+race.id+', final time: '+racer.finalTime)
+			msg.channel.send(racer.id+' is done for '+race.id+', final time: '+moment.utc(moment(racer.finalTime).diff(moment(race.startTime))).format('HH:mm:ss'))
 			// TODO: Test for archive race
 		})
 	}
@@ -167,7 +167,7 @@ class DiscordSpeedrunCommand extends DiscordEngine {
 		if(!race) return msg.channel.send(msg.author.username+': Race not found')
 		if(!race.startTime) return msg.channel.send(msg.author.username+': Race not started')
 
-		msg.channel.send(race.id+ ' current time is '+race.startTime)
+		msg.channel.send(race.id+ ' current time is '+moment.utc(moment().diff(moment(race.startTime))).format('HH:mm:ss'))
 	}
 	game(msg){
 		var race = this.raceEngine.getRace(msg.channel.id)
